@@ -1,12 +1,13 @@
 /******************************************************************************
-*Addition of two numbers - Jessica Jimenez
+*P1 - Jessica Jimenez
+*this doesn't work at all. :(
 *input:
 *5
-*+
+*{+, -, *, M}
 *15
 *
 *output:
-*20
+*(20, 10, 75, 15} 
 ******************************************************************************/
 
     .global main
@@ -21,17 +22,7 @@ main:
     MOV R2, R0
     BL  _op                 @ check the scanf input
     BL  _printf
-    B _exit
 
-_exit:  
-    MOV R7, #4          @ write syscall, 4
-    MOV R0, #1          @ output stream to monitor, 1
-    MOV R2, #21         @ print string length
-    LDR R1,=exit_str    @ string at label exit_str:
-    SWI 0               @ execute syscall
-    MOV R7, #1          @ terminate syscall, 1
-    SWI 0               @ execute syscall  
- 
 _scanf:
     MOV R4, LR              @ store LR since scanf call overwrites
     SUB SP, SP, #4          @ make room on stack
@@ -55,16 +46,37 @@ _getchar:
 _op:
     CMP R3, #'+'            @ compare against the constant char '+'
     BEQ _sum                @ branch to equal handler
+    CMP R3, #'-'            @ compare against the constant char '+'
+    BEQ _difference
+    CMP R3, #'*'            @ compare against the constant char '+'
+    BEQ _product
+    CMP R3, #'M'            @ compare against the constant char '+'
+    BEQ _max
     MOV PC, R4
  
 _sum:
-    ADD R10, R1, R2
+    ADD R0, R1, R2
     MOV PC, R8              @return?
 
+_difference:
+    SUB R0, R2, R1          @instructions were contradictive. discription said r2-r1, example had r1-r2.
+    MOV PC, R8              @return?
+
+_product:
+    MUL R0, R1, R2
+    MOV PC, R8              @return?
+
+_max:
+    #MAX R0, R1, R2         @that's not a thing right? I think it'd use... GT or LT cause overwriting? 
+    CMP R1, R2
+    MOVGT R1, R2
+    MOV R0, R1
+    MOV PC, R8              @return?
+    
 _printf:
     MOV R6, LR              @ store LR since printf call overwrites
     LDR R0, =printf_ans     @ R0 contains formatted string address
-    MOV R10, R10            @ R1 contains printf argument (redundant line)
+    MOV R0, R0            @ R1 contains printf argument (redundant line)
     BL printf               @ call printf
     MOV PC, R6              @ return
     
