@@ -59,6 +59,7 @@ _op:
  
 _sum:
     ADD R10, R1, R2
+    MOV PC, R8              @return?
 
 _printf:
     MOV R6, LR              @ store LR since printf call overwrites
