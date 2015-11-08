@@ -13,11 +13,11 @@
     .func main
    
 main:
-    BL  _getnum
+    BL  _scanf
     MOV R1, R0
     BL  _getchar            @ branch to scanf procedure with return
     MOV R3, R0              @ move return value R0 to argument register R3
-    BL  _getnum
+    BL  _scanf
     MOV R2, R0
     BL  _op                 @ check the scanf input
     BL  _printf
@@ -32,16 +32,16 @@ _exit:
     MOV R7, #1          @ terminate syscall, 1
     SWI 0               @ execute syscall  
  
-_getnum:
-    MOV R7, #3              @ write syscall, 3
-    MOV R0, #0              @ input stream from monitor, 0
-    MOV R2, #1              @ read a single character
-    LDR R1, =read_num       @ store the character in data memory
-    SWI 0                   @ execute the system call
-    LDR R0, [R1]            @ move the character to the return register
-    AND R0, #0xFF           @ mask out all but the lowest 8 bits
-    MOV PC, LR              @ return
- 
+_scanf:
+    MOV R4, LR              @ store LR since scanf call overwrites
+    SUB SP, SP, #4          @ make room on stack
+    LDR R0, =format_str     @ R0 contains address of format string
+    MOV R1, SP              @ move SP to R1 to store entry on stack
+    BL scanf                @ call scanf
+    LDR R0, [SP]            @ load value at SP into R0
+    ADD SP, SP, #4          @ restore the stack pointer
+    MOV PC, R4              @ return
+
 _getchar:
     MOV R7, #3              @ write syscall, 3
     MOV R0, #0              @ input stream from monitor, 0
@@ -51,7 +51,7 @@ _getchar:
     LDR R0, [R1]            @ move the character to the return register
     AND R0, #0xFF           @ mask out all but the lowest 8 bits
     MOV PC, LR              @ return
- 
+    
 _op:
     CMP R3, #'+'            @ compare against the constant char '+'
     BEQ _sum                @ branch to equal handler
@@ -69,7 +69,7 @@ _printf:
     MOV PC, R6              @ return
     
 .data
-read_num:       .ascii      "%d"
-read_char:      .ascii      " "
-printf_ans:      .asciz      "%d \n"
-exit_str:       .ascii      "Terminating program.\n"
+format_str:         .asciz      "%d"
+read_char:          .ascii      " "
+printf_ans:         .asciz      "%d \n"
+exit_str:           .ascii      "Terminating program.\n"
