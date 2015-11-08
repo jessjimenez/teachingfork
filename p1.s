@@ -84,4 +84,3 @@ _printf:
 format_str:         .asciz      "%d"
 read_char:          .ascii      " "
 printf_ans:         .asciz      "%d \n"
-exit_str:           .ascii      "Terminating program.\n"
