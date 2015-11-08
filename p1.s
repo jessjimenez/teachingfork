@@ -20,6 +20,7 @@ main:
     BL  _getnum
     MOV R2, R0
     BL  _op                 @ check the scanf input
+    BL  _printf
     B _exit
 
 _exit:  
@@ -35,7 +36,7 @@ _getnum:
     MOV R7, #3              @ write syscall, 3
     MOV R0, #0              @ input stream from monitor, 0
     MOV R2, #1              @ read a single character
-    LDR R1, =read_num      @ store the character in data memory
+    LDR R1, =read_num       @ store the character in data memory
     SWI 0                   @ execute the system call
     LDR R0, [R1]            @ move the character to the return register
     AND R0, #0xFF           @ mask out all but the lowest 8 bits
@@ -57,16 +58,17 @@ _op:
     MOV PC, R4
  
 _sum:
-    MOV R5, LR              @ store LR since printf call overwrites
     ADD R10, R1, R2
-    LDR R0, =print_ans      @ R0 contains formatted string address
-    MOV R11, R10
+
+_printf:
+    MOV R6, LR              @ store LR since printf call overwrites
+    LDR R0, =printf_ans     @ R0 contains formatted string address
+    MOV R10, R10            @ R1 contains printf argument (redundant line)
     BL printf               @ call printf
-    MOV PC, R5              @ return
-
-
+    MOV PC, R6              @ return
+    
 .data
 read_num:       .ascii      "%d"
 read_char:      .ascii      " "
-print_ans:      .asciz      "%d \n"
+printf_ans:      .asciz      "%d \n"
 exit_str:       .ascii      "Terminating program.\n"
